@@ -6,10 +6,10 @@ import (
 )
 
 func UnprotectedFriendshipRoutes(incomingRoutes *gin.Engine, handler friendship.FriendshipHandler) {
-
+	incomingRoutes.GET("/friends/all", handler.GetAllFriendsFunc)
 }
 
 func ProtectedFriendshipRoutes(incomingRoutes *gin.Engine, handler friendship.FriendshipHandler) {
-	incomingRoutes.POST("/users/sendfriendreq", handler.SendFriendReqFunc)
-	incomingRoutes.POST("/users/handlefriendreq", handler.ResolveFriendReqFunc)
+	incomingRoutes.POST("/friends/sendfriendreq", handler.SendFriendReqFunc)
+	incomingRoutes.POST("/friends/handlefriendreq", handler.ResolveFriendReqFunc)
 }

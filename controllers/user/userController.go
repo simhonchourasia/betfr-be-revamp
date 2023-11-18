@@ -34,7 +34,7 @@ func (userHandler *UserHandler) getUserWithUsernameOrEmail(usernameOrEmail strin
 // Checks that the given username and email combination is unique
 func (userHandler *UserHandler) isUserUnique(email string, username string) (bool, error) {
 	var user models.User // unused
-	err := userHandler.Db.Where("email = ?", email).Or("username = ?", username).First(user).Error
+	err := userHandler.Db.Where("email = ?", email).Or("username = ?", username).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return true, nil
@@ -64,15 +64,18 @@ func (userHandler *UserHandler) SignUpFunc(c *gin.Context) {
 	}
 	if !isUserUnique {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "An account with that username or email already exists"})
+		return
 	}
 
 	user, err := createUserFromRegistration(registration)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Something went wrong in user signup: %s", err.Error())})
+		return
 	}
 
 	if err := userHandler.Db.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Something went wrong in user signup: %s", err.Error())})
+		return
 	}
 
 	c.JSON(http.StatusOK, "ok")
@@ -94,6 +97,7 @@ func (userHandler *UserHandler) LoginFunc(c *gin.Context) {
 	passwordOk := authentication.VerifyPassword(login.Password, user.PasswordHash)
 	if !passwordOk {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Incorrect password"})
+		return
 	}
 
 	token, refreshToken, err := authentication.GenerateAllTokens(user.Username)

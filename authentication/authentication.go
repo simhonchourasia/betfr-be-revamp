@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/cockroachdb/cockroach-go/v2/crdb/crdbgorm"
@@ -84,11 +85,11 @@ func GenerateAllTokens(username string) (string, string, error) {
 func UpdateAllTokens(db dbinterface.DBInterface, signedToken string, signedRefreshToken string, userID uuid.UUID) error {
 	// This is a hack because i don't know how to mock crdbgorm
 	// so just don't try to call this with a mock interface
-	dbImpl, ok := db.(dbinterface.GormDB)
+	dbImpl, ok := db.(*gorm.DB)
 	if !ok {
-		panic("Must use GormDB implementation for authentication...")
+		panic(fmt.Sprintf("Must use GormDB implementation for authentication... type is %s", reflect.TypeOf(db)))
 	}
-	return crdbgorm.ExecuteTx(context.Background(), dbImpl.DB, nil,
+	return crdbgorm.ExecuteTx(context.Background(), dbImpl, nil,
 		func(tx *gorm.DB) error {
 			var user models.User
 			db.First(&user, userID)
@@ -145,5 +146,5 @@ func CheckUserPermissions(c *gin.Context, username string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("current user %s does not have the required permissions", nameStr)
+	return fmt.Errorf("current user '%s' does not have the required permissions (want '%s')", nameStr, username)
 }

@@ -8,8 +8,8 @@ import (
 
 type User struct {
 	ID               uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	Username         string
-	Email            string
+	Username         string    `gorm:"unique"`
+	Email            string    `gorm:"unique"`
 	PasswordHash     string
 	Token            string
 	RefreshToken     string

@@ -21,7 +21,7 @@ type DBInterface interface {
 	Rollback() *gorm.DB
 	Raw(sql string, values ...interface{}) *gorm.DB
 	Model(value interface{}) *gorm.DB
-	Scopes(funcs ...func(*gorm.DB) *gorm.DB) *gorm.DB
+	// Scopes(funcs ...func(*gorm.DB) *gorm.DB) *gorm.DB
 }
 
 // GormDB is a wrapper around gorm.DB to implement DBInterface.

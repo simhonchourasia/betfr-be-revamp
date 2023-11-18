@@ -5,6 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: split this up
 func MigrateUsers(db *gorm.DB) {
-	db.AutoMigrate(&models.User{})
+	// db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Friendship{})
 }
