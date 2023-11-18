@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"net/mail"
 	"strings"
 	"time"
 
@@ -16,7 +17,10 @@ func validateRegistration(registration models.Registration) error {
 	if strings.Contains(registration.Username, "@") {
 		return fmt.Errorf("username cannot contain the @ character")
 	}
-	if len(registration.Email) < 6 || 100 < len(registration.Email) {
+	if _, err := mail.ParseAddress(registration.Email); err != nil {
+		return fmt.Errorf("must use valid email")
+	}
+	if len(registration.Password) < 6 || 100 < len(registration.Password) {
 		return fmt.Errorf("password must be between 6 and 100 characters")
 	}
 	return nil

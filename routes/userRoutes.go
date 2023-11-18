@@ -12,5 +12,5 @@ func UnprotectedUserRoutes(incomingRoutes *gin.Engine, handler user.UserHandler)
 	incomingRoutes.POST("/users/logout", handler.LogoutFunc)
 }
 
-func ProtectedUserRoutes(incomingRoutes *gin.Engine) {
+func ProtectedUserRoutes(incomingRoutes *gin.Engine, handler user.UserHandler) {
 }

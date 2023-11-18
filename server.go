@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/simhonchourasia/betfr-be/config"
 	"github.com/simhonchourasia/betfr-be/controllers"
+	"github.com/simhonchourasia/betfr-be/controllers/friendship"
 	"github.com/simhonchourasia/betfr-be/controllers/user"
 	"github.com/simhonchourasia/betfr-be/middleware"
 	"github.com/simhonchourasia/betfr-be/migrations"
@@ -41,7 +42,7 @@ func main() {
 	router.Use(middleware.CORSMiddleware)
 
 	routes.UnprotectedUserRoutes(router, (user.UserHandler)(handler))
-	routes.UnprotectedFriendshipRoutes(router)
+	routes.UnprotectedFriendshipRoutes(router, (friendship.FriendshipHandler)(handler))
 	routes.UnprotectedBetRoutes(router)
 	routes.UnprotectedStakeRoutes(router)
 
@@ -57,8 +58,8 @@ func main() {
 		c.JSON(200, gin.H{"success": "Access granted for api-2"})
 	})
 
-	routes.ProtectedUserRoutes(router)
-	routes.ProtectedFriendshipRoutes(router)
+	routes.ProtectedUserRoutes(router, (user.UserHandler)(handler))
+	routes.ProtectedFriendshipRoutes(router, (friendship.FriendshipHandler)(handler))
 	routes.ProtectedBetRoutes(router)
 	routes.ProtectedStakeRoutes(router)
 

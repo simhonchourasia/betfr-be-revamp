@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/simhonchourasia/betfr-be/config"
+	"github.com/simhonchourasia/betfr-be/dbinterface"
 	"github.com/simhonchourasia/betfr-be/models"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -80,8 +81,14 @@ func GenerateAllTokens(username string) (string, string, error) {
 	return token, refreshToken, err
 }
 
-func UpdateAllTokens(db *gorm.DB, signedToken string, signedRefreshToken string, userID uuid.UUID) error {
-	return crdbgorm.ExecuteTx(context.Background(), db, nil,
+func UpdateAllTokens(db dbinterface.DBInterface, signedToken string, signedRefreshToken string, userID uuid.UUID) error {
+	// This is a hack because i don't know how to mock crdbgorm
+	// so just don't try to call this with a mock interface
+	dbImpl, ok := db.(dbinterface.GormDB)
+	if !ok {
+		panic("Must use GormDB implementation for authentication...")
+	}
+	return crdbgorm.ExecuteTx(context.Background(), dbImpl.DB, nil,
 		func(tx *gorm.DB) error {
 			var user models.User
 			db.First(&user, userID)
@@ -124,4 +131,19 @@ func GetClaimsFromCookie(c *gin.Context) (*jwt.StandardClaims, int, error) {
 
 	claims := token.Claims.(*jwt.StandardClaims)
 	return claims, http.StatusOK, nil
+}
+
+func CheckUserPermissions(c *gin.Context, username string) error {
+	name, ok := c.Get("username")
+	nameStr, isString := name.(string)
+	if !ok || !isString {
+		return fmt.Errorf("could not get username from context")
+	}
+	fmt.Printf("current user: %s\n", nameStr)
+	if ok && isString {
+		if username == nameStr {
+			return nil
+		}
+	}
+	return fmt.Errorf("current user %s does not have the required permissions", nameStr)
 }

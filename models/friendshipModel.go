@@ -14,9 +14,11 @@ const (
 )
 
 type Friendship struct {
-	ID           uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	InitiatorID  uuid.UUID
-	ReceiverID   uuid.UUID
-	FriendStatus FriendshipStatus
-	Balance      int64 // how much initiator owes receiver
+	ID            uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	InitiatorID   uuid.UUID
+	ReceiverID    uuid.UUID
+	InitiatorName string
+	ReceiverName  string
+	FriendStatus  FriendshipStatus
+	Balance       int64 // how much initiator owes receiver
 }

@@ -15,7 +15,6 @@ import (
 )
 
 type UserHandler controllers.Handler
-type Yeah int
 
 func (userHandler *UserHandler) getUserWithUsernameOrEmail(usernameOrEmail string) (models.User, error) {
 	var user models.User

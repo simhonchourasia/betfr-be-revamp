@@ -1,8 +1,9 @@
 package controllers
 
-import "gorm.io/gorm"
+import "github.com/simhonchourasia/betfr-be/dbinterface"
 
 // Allows dependency injection of DB
+
 type Handler struct {
-	Db *gorm.DB
+	Db dbinterface.DBInterface
 }
