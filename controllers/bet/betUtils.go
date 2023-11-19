@@ -30,3 +30,15 @@ func PayoutBet(db dbinterface.DBInterface, bet *models.Bet) error {
 
 	return friendship.TransferBalance(db, balanceTransfer)
 }
+
+func GetBetsForUserWithStatus(db dbinterface.DBInterface, username string, betStatus models.BetStatus) ([]models.Bet, error) {
+	var bets []models.Bet
+	err := db.Model(&models.Bet{}).
+		Select("DISTINCT bets.*").
+		Where(
+			"(bets.creator_name = ? OR bets.receiver_name = ?) AND bets.overall_status = ?",
+			username, username, betStatus).
+		Find(&bets).Error
+
+	return bets, err
+}

@@ -178,3 +178,23 @@ func (betHandler *BetHandler) ResolveBetFunc(c *gin.Context) {
 	betHandler.Db.Save(&bet)
 	c.JSON(http.StatusOK, gin.H{"msg": "Updated bet!"})
 }
+
+func (betHandler *BetHandler) GetAllBetsFunc(c *gin.Context) {
+	var getBetsForUser models.GetBetsForUser
+	if err := c.BindJSON(&getBetsForUser); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	bets, err := GetBetsForUserWithStatus(
+		betHandler.Db,
+		getBetsForUser.Username,
+		getBetsForUser.DesiredStatus,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, bets)
+}

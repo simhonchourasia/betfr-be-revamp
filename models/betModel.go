@@ -54,3 +54,8 @@ type BetResolve struct {
 	Username      string // the name of the user providing the resolution
 	StatedOutcome BetOutcome
 }
+
+type GetBetsForUser struct {
+	Username      string
+	DesiredStatus BetStatus
+}
