@@ -22,12 +22,13 @@ const (
 	Undecided BetOutcome = iota
 	CreatorWon
 	ReceiverWon
+	HasConflict
 )
 
 type Bet struct {
 	ID              uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	CreatorID       uuid.UUID
-	ReceiverID      uuid.UUID
+	CreatorName     string
+	ReceiverName    string
 	OverallStatus   BetStatus
 	Outcome         BetOutcome
 	CreatorAmount   int64 // amount that creator receives upon winning per share
@@ -37,7 +38,19 @@ type Bet struct {
 	ReceiverOutcome BetOutcome // what the receiver says the outcome was
 	Title           string
 	Description     string
+	CreatedTime     time.Time
 	ExpiryTime      time.Time
 	CreatorStaked   int64 // shares staked in favour of creator
 	ReceiverStaked  int64 // shares staked in favour of receiver
+}
+
+type BetReqHandle struct {
+	BetID     uuid.UUID
+	ReqStatus RequestStatus
+}
+
+type BetResolve struct {
+	BetID         uuid.UUID
+	Username      string // the name of the user providing the resolution
+	StatedOutcome BetOutcome
 }

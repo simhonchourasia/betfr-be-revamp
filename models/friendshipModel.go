@@ -9,7 +9,6 @@ type FriendshipStatus int8
 const (
 	NotConnected FriendshipStatus = iota
 	Pending
-	Declined
 	Friends
 )
 
@@ -29,7 +28,7 @@ type FriendReq struct {
 type FriendReqResolution struct {
 	InitiatorName string
 	ReceiverName  string
-	ReqStatus     FriendshipStatus
+	ReqStatus     RequestStatus
 }
 
 type BalanceTransfer struct {

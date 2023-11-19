@@ -1,7 +1,6 @@
 package friendship
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,26 +9,9 @@ import (
 	"github.com/simhonchourasia/betfr-be/authentication"
 	"github.com/simhonchourasia/betfr-be/controllers"
 	"github.com/simhonchourasia/betfr-be/models"
-	"gorm.io/gorm"
 )
 
 type FriendshipHandler controllers.Handler
-
-func (friendshipHandler *FriendshipHandler) getFriendStatusBetweenUsers(username1 string, username2 string) (models.FriendshipStatus, error) {
-	var fship models.Friendship
-	err := friendshipHandler.Db.Where(
-		"(initiator_name = ? AND receiver_name  = ?) OR (initiator_name = ? AND receiver_name  = ?)",
-		username1, username2, username2, username1,
-	).First(&fship).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return models.NotConnected, nil
-		} else {
-			return models.NotConnected, err
-		}
-	}
-	return fship.FriendStatus, nil
-}
 
 func (friendshipHandler *FriendshipHandler) sendFriendReqHelper(friendReq models.FriendReq) error {
 	fship := createFriendshipReq(friendReq)
@@ -50,7 +32,7 @@ func (friendshipHandler *FriendshipHandler) SendFriendReqFunc(c *gin.Context) {
 	}
 
 	// Check if there is already a friend request between the two
-	currentStatus, err := friendshipHandler.getFriendStatusBetweenUsers(friendReq.InitiatorName, friendReq.ReceiverName)
+	currentStatus, err := getFriendStatusBetweenUsers(friendshipHandler.Db, friendReq.InitiatorName, friendReq.ReceiverName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -99,20 +81,19 @@ func (friendshipHandler *FriendshipHandler) ResolveFriendReqFunc(c *gin.Context)
 		return
 	}
 
-	if friendReqResolution.ReqStatus == models.Friends {
+	if friendReqResolution.ReqStatus == models.Accepted {
 		fship.FriendStatus = models.Friends
-		friendshipHandler.Db.Save(&fship)
+		if err := friendshipHandler.Db.Save(&fship).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{"msg": "Friend request accepted!"})
 	} else if friendReqResolution.ReqStatus == models.Declined {
 		// Remove from table so they can try again later
 		friendshipHandler.Db.Delete(&fship)
 		c.JSON(http.StatusOK, gin.H{"msg": "Friend request declined..."})
 	} else {
-		c.JSON(
-			http.StatusBadRequest,
-			gin.H{"error": fmt.Sprintf("Bad friend request resolution option selected (%d)", friendReqResolution.ReqStatus)},
-		)
-		return
+		c.JSON(http.StatusOK, gin.H{"msg": "Friend request untouched."})
 	}
 }
 
