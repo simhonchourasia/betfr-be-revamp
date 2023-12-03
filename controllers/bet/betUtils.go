@@ -3,6 +3,7 @@ package bet
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/simhonchourasia/betfr-be/controllers/friendship"
 	"github.com/simhonchourasia/betfr-be/dbinterface"
 	"github.com/simhonchourasia/betfr-be/models"
@@ -29,6 +30,12 @@ func PayoutBet(db dbinterface.DBInterface, bet *models.Bet) error {
 	var balanceTransfer = models.BalanceTransfer{LoserName: loserName, WinnerName: winnerName, Amount: amount}
 
 	return friendship.TransferBalance(db, balanceTransfer)
+}
+
+func GetBet(db dbinterface.DBInterface, betId uuid.UUID) (models.Bet, error) {
+	var bet models.Bet
+	err := db.First(&bet, betId).Error
+	return bet, err
 }
 
 func GetBetsForUserWithStatus(db dbinterface.DBInterface, username string, betStatus models.BetStatus) ([]models.Bet, error) {

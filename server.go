@@ -9,8 +9,10 @@ import (
 	"github.com/simhonchourasia/betfr-be/controllers"
 	"github.com/simhonchourasia/betfr-be/controllers/bet"
 	"github.com/simhonchourasia/betfr-be/controllers/friendship"
+	"github.com/simhonchourasia/betfr-be/controllers/stake"
 	"github.com/simhonchourasia/betfr-be/controllers/user"
 	"github.com/simhonchourasia/betfr-be/middleware"
+	"github.com/simhonchourasia/betfr-be/migrations"
 	"github.com/simhonchourasia/betfr-be/routes"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -33,8 +35,8 @@ func main() {
 	if config.GlobalConfig.MigrationsOnly {
 		// migrations.MigrateUsers(db)
 		// migrations.MigrateFriendships(db)
-		// migrations.MigrateBets(db)
-		// migrations.MigrateStakes(db)
+		migrations.MigrateBets(db)
+		migrations.MigrateStakes(db)
 		return
 	}
 
@@ -48,7 +50,7 @@ func main() {
 	routes.UnprotectedUserRoutes(router, (user.UserHandler)(handler))
 	routes.UnprotectedFriendshipRoutes(router, (friendship.FriendshipHandler)(handler))
 	routes.UnprotectedBetRoutes(router, (bet.BetHandler)(handler))
-	routes.UnprotectedStakeRoutes(router)
+	routes.UnprotectedStakeRoutes(router, (stake.StakeHandler)(handler))
 
 	// TESTING, REMOVE
 	router.GET("/testing-1", func(c *gin.Context) {
@@ -65,7 +67,7 @@ func main() {
 	routes.ProtectedUserRoutes(router, (user.UserHandler)(handler))
 	routes.ProtectedFriendshipRoutes(router, (friendship.FriendshipHandler)(handler))
 	routes.ProtectedBetRoutes(router, (bet.BetHandler)(handler))
-	routes.ProtectedStakeRoutes(router)
+	routes.ProtectedStakeRoutes(router, (stake.StakeHandler)(handler))
 
 	router.Run(":" + config.GlobalConfig.Port)
 

@@ -37,8 +37,9 @@ func (betHandler *BetHandler) CreateBetReqFunc(c *gin.Context) {
 	bet.CreatorOutcome = models.Undecided
 	bet.ReceiverOutcome = models.Undecided
 	bet.CreatedTime = time.Now()
-	bet.CreatorStaked = 0
-	bet.ReceiverStaked = 0
+	bet.NumStakesFilled = 0
+	bet.CreatorStakedUnfilled = 0
+	bet.ReceiverStakedUnfilled = 0
 
 	// TODO: this code could probably be moved elsewhere
 	if bet.ExpiryTime.Before(bet.CreatedTime.Add(5 * time.Minute)) {
