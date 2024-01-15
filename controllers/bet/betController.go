@@ -181,9 +181,19 @@ func (betHandler *BetHandler) ResolveBetFunc(c *gin.Context) {
 }
 
 func (betHandler *BetHandler) GetAllBetsFunc(c *gin.Context) {
+	claims, statusCode, err := authentication.GetClaimsFromCookie(c)
+	if err != nil {
+		c.JSON(statusCode, gin.H{"error": err.Error()})
+		return
+	}
+
 	var getBetsForUser models.GetBetsForUser
 	if err := c.BindJSON(&getBetsForUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if claims.Issuer != getBetsForUser.Username {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cookie issuer does not match request"})
 		return
 	}
 
